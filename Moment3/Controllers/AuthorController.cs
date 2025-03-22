@@ -139,9 +139,16 @@ namespace Moment3.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var author = await _context.Authors.FindAsync(id);
+            var author = await _context.Authors
+            .Include(a => a.Books)
+            .FirstOrDefaultAsync(a => a.Id == id);
+
             if (author != null)
             {
+                if(author.Books != null && author.Books.Any())
+                {
+                    _context.Books.RemoveRange(author.Books);
+                }
                 _context.Authors.Remove(author);
             }
 
